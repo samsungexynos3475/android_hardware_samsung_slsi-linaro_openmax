@@ -65,6 +65,9 @@ void Exynos_UpdateFrameSize(OMX_COMPONENTTYPE *pOMXComponent)
 
     FunctionIn();
 
+    pInputPort->portDefinition.format.video.nStride = ALIGN(width, 16);
+    pInputPort->portDefinition.format.video.nSliceHeight = ALIGN(height, 16);
+
     if (width && height) {
         switch((int)pInputPort->portDefinition.format.video.eColorFormat) {
         case OMX_COLOR_FormatYUV420Planar:
