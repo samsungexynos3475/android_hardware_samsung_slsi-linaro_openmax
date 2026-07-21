@@ -846,6 +846,7 @@ int Codec_OSAL_SetControls(
                     break;
                 }
 
+#ifdef SUPPORT_V4L2_H264_HIERARCHICAL_CODING
                 /* SVC is not supported yet */
                 ext_ctrl[40].id =  V4L2_CID_MPEG_VIDEO_H264_HIERARCHICAL_CODING;
                 ext_ctrl[40].value = 0;
@@ -909,6 +910,10 @@ int Codec_OSAL_SetControls(
                 ext_ctrl[91].value  = pH264Param->VuiRestrictionEnable;
 
                 ext_ctrls.count = H264_CTRL_NUM;
+#else
+                ext_ctrls.count = 40;
+#endif
+
 
                 if (pCtx->videoCtx.instInfo.supportInfo.enc.bTemporalSvcSupport == VIDEO_TRUE) {
                     i = ext_ctrls.count;
@@ -931,21 +936,21 @@ int Codec_OSAL_SetControls(
 
                 if (pCtx->videoCtx.instInfo.supportInfo.enc.bSkypeSupport == VIDEO_TRUE) {
                     i = ext_ctrls.count;
-                    /* H264 LTR FRAMES (0: disable, LTRFrames > 0: enable) */
-                    ext_ctrl[i].id      = V4L2_CID_MPEG_MFC_H264_NUM_OF_LTR;
-                    ext_ctrl[i].value   = pH264Param->LTRFrames;
+                    /* VUI RESRICTION ENABLE */
+                    ext_ctrl[i].id          = V4L2_CID_MPEG_MFC_H264_VUI_RESTRICTION_ENABLE;
+                    ext_ctrl[i].value       = pH264Param->VuiRestrictionEnable;
+
+                    /* H264 ENABLE LTR */
+                    ext_ctrl[i + 1].id      = V4L2_CID_MPEG_MFC_H264_ENABLE_LTR;
+                    ext_ctrl[i + 1].value   = (pH264Param->LTRFrames > 0) ? 1 : 0;
 
                     /* FRAME LEVEL QP ENABLE */
-                    ext_ctrl[i + 1].id      = V4L2_CID_MPEG_MFC_CONFIG_QP_ENABLE;
-                    ext_ctrl[i + 1].value   = pCommonParam->EnableFRMQpControl;
+                    ext_ctrl[i + 2].id      = V4L2_CID_MPEG_MFC_CONFIG_QP_ENABLE;
+                    ext_ctrl[i + 2].value   = pCommonParam->EnableFRMQpControl;
 
                     /* CONFIG QP VALUE */
-                    ext_ctrl[i + 2].id      = V4L2_CID_MPEG_MFC_CONFIG_QP;
-                    ext_ctrl[i + 2].value   = pCommonParam->FrameQp;
-
-                    /* MAX LAYER COUNT for SHORT TERM */
-                    ext_ctrl[i + 3].id      = V4L2_CID_MPEG_VIDEO_TEMPORAL_SHORTTERM_MAX_LAYER;
-                    ext_ctrl[i + 3].value   = pH264Param->MaxTemporalLayerCount;
+                    ext_ctrl[i + 3].id      = V4L2_CID_MPEG_MFC_CONFIG_QP;
+                    ext_ctrl[i + 3].value   = pCommonParam->FrameQp;
 
                     ext_ctrls.count += 4;
                 }
@@ -973,6 +978,7 @@ int Codec_OSAL_SetControls(
                     ext_ctrls.count += 4;
                 }
 
+#ifdef SUPPORT_V4L2_CID_MPEG_VIDEO_RC_PVC
                 if (pCtx->videoCtx.instInfo.supportInfo.enc.bPVCSupport == VIDEO_TRUE) {
                     i = ext_ctrls.count;
                     ext_ctrl[i].id = V4L2_CID_MPEG_VIDEO_RC_PVC_ENABLE;
@@ -980,6 +986,7 @@ int Codec_OSAL_SetControls(
 
                     ext_ctrls.count += 1;
                 }
+#endif
             }
                 break;
             case VIDEO_CODING_MPEG4:
@@ -1241,6 +1248,7 @@ int Codec_OSAL_SetControls(
                     ext_ctrls.count += 2;
                 }
 
+#ifdef SUPPORT_V4L2_CID_MPEG_VIDEO_RC_PVC
                 if (pCtx->videoCtx.instInfo.supportInfo.enc.bPVCSupport == VIDEO_TRUE) {
                     i = ext_ctrls.count;
                     ext_ctrl[i].id = V4L2_CID_MPEG_VIDEO_RC_PVC_ENABLE;
@@ -1248,6 +1256,7 @@ int Codec_OSAL_SetControls(
 
                     ext_ctrls.count += 1;
                 }
+#endif
             }
                 break;
             case VIDEO_CODING_HEVC:
